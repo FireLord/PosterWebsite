@@ -47,10 +47,15 @@ export async function POST(req: Request) {
     try {
         const formData = await req.formData();
         const file = formData.get('file') as File;
+        const name = formData.get('name') as string;
         const supabase = await createClient();
 
         if (!file) {
             return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+        }
+
+        if (!file.type.startsWith('image/')) {
+            return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
         }
 
         // Generate a unique filename using a timestamp and random ID
@@ -65,9 +70,22 @@ export async function POST(req: Request) {
         // Resize the uploaded image using sharp
         const resizedOverlay = await sharp(fileBuffer).resize(335, 335).toBuffer();
 
-        // Read and overlay the image onto the template
+        // Create an SVG with the name text
+        const nameText = name || 'Your Name Here'; // Use the provided name or a default
+        const svgText = `
+        <svg width="500" height="100">
+          <text x="0" y="50" font-size="40" fill="black">${nameText}</text>
+        </svg>`;
+
+        // Convert the SVG to a buffer
+        const svgBuffer = Buffer.from(svgText);
+
+        // Read and overlay the image and text onto the template
         const finalImage = await sharp(posterTemplatePath)
-            .composite([{ input: resizedOverlay, top: 165, left: 70 }]) // Position the overlay
+            .composite([
+                { input: resizedOverlay, top: 165, left: 70 }, // Position the image
+                { input: svgBuffer, top: 300, left: 450 } // Position the text
+            ])
             .toBuffer();
 
         // Upload to Supabase Storage
@@ -83,17 +101,19 @@ export async function POST(req: Request) {
         }
 
         // Get the public URL for the uploaded image
-        const publicURL = supabase.storage
+        const uploadResult = supabase.storage
             .from('posters')
             .getPublicUrl(uniqueName);
 
+        const publicURL = uploadResult.data.publicUrl;
+        
         if (!publicURL) {
             throw new Error('Failed to get public URL');
         }
 
-        console.log('Image uploaded to:', publicURL.data.publicUrl);
+        console.log('Image uploaded to:', publicURL);
         // Return the URL of the generated image
-        return NextResponse.json({ url: publicURL.data.publicUrl });
+        return NextResponse.json({ url: publicURL });
     } catch (error) {
         console.error('Error during image processing:', error);
         return NextResponse.json({ error: 'Image processing failed' }, { status: 500 });
