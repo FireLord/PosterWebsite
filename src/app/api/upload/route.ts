@@ -5,6 +5,19 @@ import { cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
 import path from 'path';
 
+// Configure Sharp to use the custom fonts
+const fontConfigPath = path.join(process.cwd(), 'fonts', 'fonts.conf');
+const fontPath = path.join(process.cwd(), 'fonts', 'Arial.ttf');
+
+sharp.cache(false);
+if (process.env.NODE_ENV === 'production') {
+  process.env.FONTCONFIG_PATH = '/var/task/fonts';
+  process.env.LD_LIBRARY_PATH = '/var/task';
+}
+
+console.log('Font config path:', fontConfigPath);
+console.log('Font path:', fontPath);
+
 // Create a Supabase client with server-side cookies
 async function createClient() {
     // Supabase credentials
