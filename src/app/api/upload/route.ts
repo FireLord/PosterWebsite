@@ -63,12 +63,15 @@ export async function POST(req: Request) {
 
         // Path to the poster template in public folder
         const posterTemplatePath = path.join(process.cwd(), 'public', 'poster_template.jpeg');
-        
+
         // Read the uploaded file into a buffer
         const fileBuffer = Buffer.from(await file.arrayBuffer());
 
         // Resize the uploaded image using sharp
-        const resizedOverlay = await sharp(fileBuffer).resize(335, 335).toBuffer();
+        const resizedOverlay = await sharp(fileBuffer)
+            .rotate()
+            .resize(335, 335)
+            .toBuffer();
 
         // Create an SVG with the name text
         const nameText = name || 'Your Name Here'; // Use the provided name or a default
@@ -106,7 +109,7 @@ export async function POST(req: Request) {
             .getPublicUrl(uniqueName);
 
         const publicURL = uploadResult.data.publicUrl;
-        
+
         if (!publicURL) {
             throw new Error('Failed to get public URL');
         }
