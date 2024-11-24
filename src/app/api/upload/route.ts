@@ -6,7 +6,7 @@ import { randomUUID } from 'crypto';
 import path from 'path';
 
 // Create a Supabase client with server-side cookies
-export async function createClient() {
+async function createClient() {
     // Supabase credentials
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_ANON_KEY;
