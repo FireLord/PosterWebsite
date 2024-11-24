@@ -37,11 +37,11 @@ export async function POST(req: Request) {
     const fileBuffer = Buffer.from(await file.arrayBuffer());
 
     // Resize the uploaded image
-    const resizedOverlay = await sharp(fileBuffer).resize(200, 200).toBuffer();
+    const resizedOverlay = await sharp(fileBuffer).resize(335, 335).toBuffer();
 
     // Overlay the uploaded image onto the template
     await sharp(posterTemplatePath)
-      .composite([{ input: resizedOverlay, top: 180, left: 230 }]) // Position the overlay
+      .composite([{ input: resizedOverlay, top: 165, left: 70 }]) // Position the overlay
       .toFile(outputPath);
 
     const publicUrl = `/uploads/${uniqueName}`;
