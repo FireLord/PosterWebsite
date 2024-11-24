@@ -63,7 +63,7 @@ function Home() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-4">
-      <h1 className="text-2xl font-bold mb-4">Create Your Custom Poster</h1>
+      <h1 className="text-2xl font-bold mb-4">Create Your Support Poster</h1>
 
       {!uploadedPosterUrl ? (
         <div className="flex flex-col items-center">
